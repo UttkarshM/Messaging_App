@@ -11,7 +11,7 @@ const Login = () => {
     const [avatar, setAvatar] = useState({ file: null, url: "" });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null); // State for error messages
-    const navigate = useNavigate(); // Initialize navigate
+
 
     const handleAvatar = (e) => {
         setAvatar({
@@ -43,7 +43,6 @@ const Login = () => {
             });
 
             console.log("Account created");
-            navigate('/chat'); // Redirect to chat page after registration
         } catch (err) {
             console.log(err);
             setError("Error creating account: " + err.message);
@@ -62,7 +61,6 @@ const Login = () => {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            navigate('/chat'); 
         } catch (err) {
             console.log(err);
             setError("Error logging in: " + err.message);

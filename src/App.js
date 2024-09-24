@@ -1,3 +1,40 @@
+
+// function App() {
+//   const { currentUser, isLoading, fetchUserInfo } = useUserStore();
+//   const { chatId } = useChatStore();
+
+//   useEffect(() => {
+//     const unSub = onAuthStateChanged(auth, (user) => {
+//       if (user) {
+//         fetchUserInfo(user.uid);
+//       } else {
+//         fetchUserInfo(null);
+//       }
+//     });
+//     return () => {
+//       unSub();
+//     };
+//   }, [fetchUserInfo]);
+
+
+//   if (isLoading) return <div className='loading'>Loading....</div>;
+
+//   return (
+//     <div className="App">
+//       {currentUser ? (
+//         <>
+//           <UserList />
+//           {chatId && <ChatList />}
+//         </>
+//       ) : (
+//         <Login />
+//       )}
+//     </div>
+//   );
+// }
+// export default App;
+
+
 import './App.css';
 import UserList from './components/list/List';
 import ChatList from './components/chat/Chat';
@@ -14,17 +51,12 @@ function App() {
 
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        fetchUserInfo(user.uid);
-      } else {
-        fetchUserInfo(null);
-      }
+      fetchUserInfo(user ? user.uid : null);
     });
     return () => {
       unSub();
     };
   }, [fetchUserInfo]);
-
 
   if (isLoading) return <div className='loading'>Loading....</div>;
 
@@ -41,4 +73,5 @@ function App() {
     </div>
   );
 }
+
 export default App;

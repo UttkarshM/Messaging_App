@@ -148,7 +148,9 @@ const ChatList = () => {
                     style={{ display: 'none' }} 
                     id="image-upload" 
                 />
-                <label htmlFor="image-upload" className="upload-button">📷</label>
+                <div className='upload-button-container'>
+                    <div htmlFor="image-upload" className="upload-button">📷</div>
+                </div>
                 <button className="send-button" onClick={handleSend} disabled={isSending}>Send</button>
             </div>
         </div>

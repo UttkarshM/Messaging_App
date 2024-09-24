@@ -1,19 +1,20 @@
 .chatlist {
     margin-top: 20px;
     width: 100%;
-    height: 100%;
+    height: 110%;
     /* Ensure this is relative to the parent container */
     display: flex;
     flex-direction: column;
     padding: 10px;
     box-sizing: border-box;
-    overflow-y: scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .search {
     display: flex;
     justify-content: flex-start;
-    width: 100%;
+    width: 40%;
     margin-bottom: 20px;
 }
 
@@ -21,8 +22,9 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    width: 100%;
+    width: 40%;
     height: 40px;
+    margin-left:30px;
 }
 
 .search-box {
@@ -38,8 +40,8 @@
 
 .plus {
     margin-left: 10px;
-    width: 24px;
-    height: 24px;
+    width: 12px;
+    height: 12px;
     cursor: pointer;
 }
 
@@ -47,22 +49,25 @@
     overflow-y: auto;
     flex-grow: 1;
     max-height: 400px;
-    /* Set a max height for the scrollable area */
     margin-top: 10px;
     overflow-y: scroll;
-    /* Add some space between search bar and chat logs */
 }
 
 .chat-logs .items {
     display: flex;
     flex-direction: row;
+    
     align-items: center;
+    
     max-width: 400px;
     height: 50px;
     font-size: 20px;
-    background-color: rgba(164, 219, 207, 0.7);
+
     border-radius: 9px;
-    border-bottom: 1px solid rgba(163, 244, 226, 0.7);
+    border-bottom: 3px solid rgba(201, 249, 238, 0.7);
+}
+.chat-logs .items:hover{
+    background-color: rgba(164, 219, 207, 0.7);
 }
 
 .chat-logs .item-logo {
