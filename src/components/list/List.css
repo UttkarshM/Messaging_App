@@ -1,0 +1,32 @@
+
+.User-List {
+    width: 30%;
+    border-right: 3px solid rgba(219, 238, 234, 1);
+    display: flex;
+    flex-direction: column;
+
+.User {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        height: 80px;
+        padding: 10px;
+        transition: opacity 0.3s ease;
+    }
+
+    .User:hover {
+        opacity: 0.8;
+    }
+
+    .icon {
+        margin-right: 15px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .name {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+}

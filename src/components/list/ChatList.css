@@ -1,0 +1,76 @@
+.chatlist {
+    margin-top: 20px;
+    width: 100%;
+    height: 100%;
+    /* Ensure this is relative to the parent container */
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: scroll;
+}
+
+.search {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 40px;
+}
+
+.search-box {
+    flex-grow: 1;
+    height: 40px;
+    background-color: rgba(219, 238, 234, 0.7);
+    border: 1px solid rgba(219, 238, 234, 0.7);
+    border-radius: 8px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+.plus {
+    margin-left: 10px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.chat-logs {
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 400px;
+    /* Set a max height for the scrollable area */
+    margin-top: 10px;
+    overflow-y: scroll;
+    /* Add some space between search bar and chat logs */
+}
+
+.chat-logs .items {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-width: 400px;
+    height: 50px;
+    font-size: 20px;
+    background-color: rgba(164, 219, 207, 0.7);
+    border-radius: 9px;
+    border-bottom: 1px solid rgba(163, 244, 226, 0.7);
+}
+
+.chat-logs .item-logo {
+    margin-left: 20px;
+    width: 30px;
+    height: 30px;
+}
+
+.user-box {
+    margin-left: 20px;
+}
