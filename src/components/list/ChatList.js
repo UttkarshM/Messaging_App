@@ -6,13 +6,16 @@ import { onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import useChatStore from '../lib/chatStore';
 
+
 const Chatlist = () => {
     const [chats, setChats] = useState([]);
     const [addMode, setAddMode] = useState(false);
     const { currentUser } = useUserStore();
     const { changeChat } = useChatStore();
-
+    const { user, setUser } = useState(null);
     useEffect(() => {
+        
+
         const unsub = onSnapshot(doc(db, "userchats", currentUser.id), async (docSnap) => {
             if (docSnap.exists()) {
                 const items = docSnap.data().chats || [];
@@ -31,6 +34,7 @@ const Chatlist = () => {
                 const chatData = await Promise.all(promises);
                 setChats(chatData.filter(Boolean).sort((a, b) => b.updatedAt - a.updatedAt));
             }
+            console.log(currentUser);
         });
 
         return () => {
@@ -38,21 +42,26 @@ const Chatlist = () => {
         };
     }, [currentUser.id]);
 
-    const handleSelect = (chat) => {
+    const handleSelect = async (chat) => {
+        console.log('changed user');
+        console.log(chat);
+
         changeChat(chat.chatId, chat.user);
+        console.log(chat.user);
     };
 
     return (
         <div className='chatlist'>
             <div className='search'>
                 <div className='bar'>
-                    <input className='search-box' placeholder='Enter Chats' />
                     <img 
                         className='plus' 
                         src={addMode ? require('../images/plus.png') : require('../images/minus.png')}
                         onClick={() => setAddMode(prev => !prev)}
-                        alt='plus symbol' 
+                        alt='plus symbol'
                     />
+                    <input className='search-box' placeholder='Enter Chats' />
+
                 </div>
             </div>
             <div className='chat-logs'>

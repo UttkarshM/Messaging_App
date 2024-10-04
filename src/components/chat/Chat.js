@@ -3,6 +3,7 @@ import { onSnapshot, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import useChatStore from '../lib/chatStore';
 import './Chat.css';
+import useUserStore from '../lib/userStore';
 
 const ChatList = () => {
     const [chat, setChat] = useState(null);
@@ -11,14 +12,44 @@ const ChatList = () => {
     const [isSending, setIsSending] = useState(false);
     const chatLogsRef = useRef(null);
     const { chatId } = useChatStore();
+    // const currentUser = { uid: }
+    const [ Recipient, setRecipient ] = useState(null);
+    const { currentUser } = useUserStore();
 
-    useEffect(() => {
+    const fetchUserById = async (userId) => {
+    try {
+        const userDocRef = doc(db, "users", userId);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+            const { username, avatar } = userDocSnap.data();
+            return { username, avatar };
+        } else {
+            console.warn("No such user found!");
+            return { username: null, avatar: null };
+        }
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return { username: null, avatar: null };
+    }
+};
+
+        useEffect(() => {
         if (!chatId) return;
 
-        const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
+        const unSub = onSnapshot(doc(db, "chats", chatId), async (res) => {
             if (res.exists()) {
-                setChat(res.data());
-                setMessages(res.data().messages || []);
+                const chatData = res.data();
+                setChat(chatData);
+                setMessages(chatData.messages || []);
+
+                // Fetch the recipient's username if messages exist
+                if (chatData.messages.length > 0) {
+                    const recipientId = chatData.messages[0].sender; // Adjust this logic as necessary
+                    const username = await fetchUserById(recipientId);
+                    setRecipient(username);
+                    console.log(Recipient);
+                }
             } else {
                 setChat(null);
                 setMessages([]);
@@ -37,42 +68,45 @@ const ChatList = () => {
     }, [messages]);
 
     const handleSend = async () => {
-        if (message.trim() && !isSending) {
-            setIsSending(true);
+    if (message.trim() && !isSending) {
+        setIsSending(true);
 
-            const newMessage = {
-                text: message,
-                sender: 'you',
-                timestamp: new Date(),
-            };
+        const newMessage = {
+            text: message,
+            sender: currentUser.id,
+            timestamp: new Date(),
+        };
 
-            try {
-                const chatDocRef = doc(db, "chats", chatId);
-                const currentChatDoc = await getDoc(chatDocRef);
-                const existingMessages = currentChatDoc.data().messages || [];
-
-                // Update Firestore with the new message
-                await updateDoc(chatDocRef, {
-                    messages: [...existingMessages, newMessage],
-                });
-
-                // After Firestore update, fetch the latest messages
-                const updatedChatDoc = await getDoc(chatDocRef);
-                setMessages(updatedChatDoc.data().messages || []);
-
-                // Clear the input after sending
-                setMessage('');
-            } catch (error) {
-                console.error("Error sending message:", error);
-            } finally {
-                setIsSending(false);
-            }
+        if (!newMessage.sender) {
+            console.error("Sender ID is undefined");
+            setIsSending(false);
+            return;
         }
-    };
 
+        try {
+            const chatDocRef = doc(db, "chats", chatId);
+            const currentChatDoc = await getDoc(chatDocRef);
+            const existingMessages = currentChatDoc.data().messages || [];
+
+            await updateDoc(chatDocRef, {
+                messages: [...existingMessages, newMessage],
+            });
+
+            const updatedChatDoc = await getDoc(chatDocRef);
+            setMessages(updatedChatDoc.data().messages || []);
+            setMessage('');
+        } catch (error) {
+            console.error("Error sending message:", error);
+        } finally {
+            setIsSending(false);
+        }
+    }
+};
+
+    
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent form submission
+            event.preventDefault();
             handleSend();
         }
     };
@@ -84,7 +118,7 @@ const ChatList = () => {
             reader.onloadend = async () => {
                 const newMessage = {
                     text: reader.result,
-                    sender: 'you',
+                    sender: currentUser.uid,
                     type: 'image',
                     timestamp: new Date(),
                 };
@@ -98,7 +132,6 @@ const ChatList = () => {
                         messages: [...existingMessages, newMessage],
                     });
 
-                    // Fetch the latest messages from Firestore
                     const updatedChatDoc = await getDoc(chatDocRef);
                     setMessages(updatedChatDoc.data().messages || []);
                 } catch (error) {
@@ -109,26 +142,29 @@ const ChatList = () => {
         }
     };
 
+    
     return (
         <div className="chat-list">
             <div className="title">
-                <img className='logo' src={chat?.avatar || require('../images/user.png')} alt="User logo" />
-                <div className='name'>{chat ? chat.username : 'Chat'}</div>
+                <img className='logo' src={Recipient?.avatar || require('../images/user.png')} alt="User logo" />
+                <div className='name'>{chat ? Recipient.username : 'Chat'}</div>
             </div>
             <div className='chat-logs' ref={chatLogsRef}>
                 {messages.map((msg, index) => (
-                    <div className='message' key={index}>
-                        {msg.type === 'image' ? (
-                            <div className='you'>
-                                <img src={msg.text} alt="Uploaded" className="message-image" />
-                            </div>
-                        ) : (
-                            <div className={msg.sender === 'you' ? 'you' : 'recipient'}>
-                                {msg.text}
-                            </div>
-                        )}
+            <div className='message' key={index}>
+                {/* {console.log(msg)} */}
+                {msg.type === 'image' ? (
+                    <div className={msg.sender === currentUser.id ? 'you' : 'recipient'}>
+                        <img src={msg.text} alt="Uploaded" className="message-image" />
                     </div>
-                ))}
+                ) : (
+                    <div className={msg.sender === currentUser.id ? 'you' : 'recipient'}>
+                        {msg.text}
+                    </div>
+                )}
+            </div>
+            ))}
+
             </div>
             <div className="message-bar">
                 <input 
@@ -142,7 +178,7 @@ const ChatList = () => {
                 />
                 <input 
                     type="file" 
-                    accept="image/*" 
+                    accept="image/*"
                     className="image-input" 
                     onChange={handleImageUpload} 
                     style={{ display: 'none' }} 
@@ -151,12 +187,14 @@ const ChatList = () => {
                 <div className='upload-button-container'>
                     <div htmlFor="image-upload" className="upload-button">📷</div>
                 </div>
-                <button className="send-button" onClick={handleSend} disabled={isSending}>Send</button>
+                <div className="send-button">
+                    <button
+                        onClick={handleSend} disabled={isSending}>Send</button>
+                </div>
             </div>
         </div>
     );
 };
-
 export default ChatList;
 
 
