@@ -13,7 +13,7 @@ const ChatList = () => {
     const chatLogsRef = useRef(null);
     const { chatId } = useChatStore();
     // const currentUser = { uid: }
-    const [ Recipient, setRecipient ] = useState(null);
+    const [ Recipient, setRecipient ] = useState({ username: 'Loading...', avatar: null });
     const { currentUser } = useUserStore();
 
     const fetchUserById = async (userId) => {
