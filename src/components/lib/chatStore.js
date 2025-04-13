@@ -17,6 +17,9 @@ const useChatStore = create((set) => ({
             set({ chatId, user, isReceiverBlocked: false });
             return;
         }
+        console.log("Changing chat...");
+        console.log("Chat ID:", chatId);
+        console.log("User:", user);
 
         // Fetch the blocking status from Firestore
         const userDocRef = doc(db, 'users', user.id);
@@ -26,11 +29,16 @@ const useChatStore = create((set) => ({
             const userData = userDocSnap.data();
             const isBlocked = Array.isArray(userData.blockedUsers) && userData.blockedUsers.includes(currentUser.id);
             set({ chatId, user, isReceiverBlocked: isBlocked });
+            // console.log("User document exists:", useChatStore.getState().user);
+            // console.log("User data:", useChatStore.getState().chatId);
+            // console.log("Is receiver blocked:", isBlocked);
+
         } else {
-            // Handle case where the user document does not exist
             console.warn("User document does not exist:", user.id);
             set({ chatId, user, isReceiverBlocked: false });
         }
+        console.log("User document exists:", useChatStore.getState().user);
+        console.log("User data:", useChatStore.getState().chatId);
     },
 
     changeBlock: () => {

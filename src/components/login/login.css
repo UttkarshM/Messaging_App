@@ -1,104 +1,251 @@
+/* Base Styles */
 .login {
     display: flex;
-    justify-content: flex-start;
-    padding: 3% 4%;
-    background-color: #f4f4f4;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 800px;
-    margin: auto;
-}
-
-.item {
-    flex: 1;
-    margin: 1.5%;
-    padding: 2%;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: transparent;
+    padding: 20px;
+  }
+  
+  .item {
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-    min-width: 300px;
-    min-height: 250px;
-}
-
-h2 {
-    margin-bottom: 10%;
-    font-size: 24px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .type-h {
+    text-align: center;
+    margin-bottom: 20px;
     color: #333;
-}
-
-form {
+    font-size: 24px;
+  }
+  
+  .switch {
+    font-size: 16px;
+    color: #4a90e2;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  
+  .switch:hover {
+    text-decoration: underline;
+  }
+  
+  form {
     display: flex;
     flex-direction: column;
-}
-
-input[type="text"],
-input[type="password"] {
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
+    gap: 16px;
+  }
+  
+  input[type="text"],
+  input[type="password"],
+  input[type="email"] {
+    padding: 12px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-    /* Ensure padding and borders are included */
-}
-
-input[type="file"] {
-    display: none;
-}
-
-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    color: #007bff;
-    margin-bottom: 10px;
-}
-
-label img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 8px;
-}
-
-button {
-    padding: 10px;
-    background-color: #007bff;
+    font-size: 16px;
+    transition: border-color 0.2s;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  }
+  
+  button {
+    background-color: #4a90e2;
     color: white;
     border: none;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-top: 15%;
-    margin-bottom: 5%;
-    transition: background-color 0.3s;
-
-    &:disabled{
-        cursor:not-allowed;
-        background-color: aquamarine;
-    }
-}
-
-.upload-image{
+    padding: 12px;
     font-size: 16px;
-    height: 30px;
-    img{
-        height:25px;
-    }
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-.separator {
-    border-left: 1px solid #ccc;
-    padding-left: 30px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 8px;
+  }
+  
+  button:hover {
+    background-color: #3a7bc8;
+  }
+  
+  button:disabled {
+    background-color: #a0c3e8;
+    cursor: not-allowed;
+  }
+  
+  .upload-image {
     display: flex;
+    flex-direction: column;
     align-items: center;
-}
-
-.separator .item {
-    flex-grow: 1;
-}
+    gap: 10px;
+    cursor: pointer;
+    color: #555;
+    font-size: 14px;
+  }
+  
+  .avatar-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+  }
+  
+  .error-message {
+    background-color: #ffebee;
+    color: #e53935;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+  
+  /* Responsive Breakpoints */
+  
+  /* Medium Screens */
+  @media (max-width: 1024px) {
+    .item {
+      max-width: 90%;
+    }
+  }
+  
+  /* Tablets */
+  @media (max-width: 768px) {
+    .item {
+      padding: 20px;
+      max-width: 100%;
+    }
+  
+    .type-h {
+      font-size: 20px;
+    }
+  
+    input {
+      padding: 10px;
+    }
+  
+    button {
+      padding: 10px;
+    }
+  
+    .avatar-logo {
+      width: 90px;
+      height: 90px;
+    }
+  }
+  
+  /* Phones */
+  @media (max-width: 480px) {
+    .login {
+      padding: 10px;
+    }
+  
+    .item {
+      padding: 15px;
+      border-radius: 6px;
+    }
+  
+    .type-h {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+  
+    .switch {
+      font-size: 14px;
+    }
+  
+    form {
+      gap: 12px;
+    }
+  
+    input {
+      padding: 8px;
+      font-size: 14px;
+    }
+  
+    button {
+      padding: 10px;
+      font-size: 14px;
+    }
+  
+    .avatar-logo {
+      width: 80px;
+      height: 80px;
+    }
+  }
+  
+  /* Very Small Phones */
+  @media (max-width: 320px) {
+    .item {
+      padding: 10px;
+    }
+  
+    .type-h {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+  
+    .avatar-logo {
+      width: 60px;
+      height: 60px;
+    }
+  }
+  
+  /* Large Screens (Desktop and up) */
+  @media (min-width: 1280px) {
+    .item {
+      max-width: 500px;
+      padding: 40px;
+    }
+  
+    .type-h {
+      font-size: 28px;
+    }
+  
+    .switch {
+      font-size: 18px;
+    }
+  
+    input {
+      font-size: 18px;
+      padding: 14px;
+    }
+  
+    button {
+      font-size: 18px;
+      padding: 14px;
+    }
+  
+    .avatar-logo {
+      width: 120px;
+      height: 120px;
+    }
+  }
+  
+  /* Ultra-Wide Screens */
+  @media (min-width: 1440px) {
+    .item {
+      max-width: 600px;
+    }
+  
+    .type-h {
+      font-size: 32px;
+    }
+  
+    input,
+    button {
+      font-size: 20px;
+    }
+  
+    .avatar-logo {
+      width: 140px;
+      height: 140px;
+    }
+  }
+  

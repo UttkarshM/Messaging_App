@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './ChatList.css';
-import AddUser from './addUser/addUser';
+import AddUser from '../addUser/addUser';
 import useUserStore from '../lib/userStore';
 import { onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -26,6 +26,8 @@ const Chatlist = () => {
 
                     if (userDocSnap.exists()) {
                         const user = userDocSnap.data();
+                        console.log(user);
+                        console.log(item);
                         return { ...item, user };
                     }
                     return null; // Return null if user does not exist
@@ -43,30 +45,34 @@ const Chatlist = () => {
     }, [currentUser.id]);
 
     const handleSelect = async (chat) => {
-        console.log('changed user');
-        console.log(chat);
-
-        changeChat(chat.chatId, chat.user);
+        // console.log('changed user');
+        // console.log(chat.user.username);
+        console.log('handle select block info')
+        console.log(chat.chatId);
         console.log(chat.user);
+        changeChat(chat.chatId, chat.user);
+        // console.log(chat.user);
     };
 
     return (
         <div className='chatlist'>
             <div className='search'>
                 <div className='bar'>
+                    <input className='search-box' placeholder='Enter Chats' />
                     <img 
                         className='plus' 
-                        src={addMode ? require('../images/plus.png') : require('../images/minus.png')}
+                        src={addMode ? require('../images/minus.png') : require('../images/plus.png')}
                         onClick={() => setAddMode(prev => !prev)}
                         alt='plus symbol'
                     />
-                    <input className='search-box' placeholder='Enter Chats' />
 
                 </div>
             </div>
             <div className='chat-logs'>
                 {chats.map(chat => (
-                    <div className='items' key={chat.chatId} onClick={() => handleSelect(chat)}>
+                    <div className='items' key={chat.chatId} onClick={() => {
+                        console.log(chat.user.username);
+                        handleSelect(chat)}}>
                         <img className='item-logo' src={chat.user.avatar || require('../images/user.png')} alt='User Avatar' />
                         <div className='user-box'>{chat.user.username || chat.user.name}</div>
                     </div>

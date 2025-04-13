@@ -4,6 +4,7 @@ import { db } from '../lib/firebase';
 import useChatStore from '../lib/chatStore';
 import './Chat.css';
 import useUserStore from '../lib/userStore';
+import { use } from 'react';
 
 const ChatList = () => {
     const [chat, setChat] = useState(null);
@@ -12,9 +13,15 @@ const ChatList = () => {
     const [isSending, setIsSending] = useState(false);
     const chatLogsRef = useRef(null);
     const { chatId } = useChatStore();
-    // const currentUser = { uid: }
+    const { user } = useChatStore();
+
+
     const [ Recipient, setRecipient ] = useState({ username: 'Loading...', avatar: null });
     const { currentUser } = useUserStore();
+
+    console.log("Chat.js ,Chat ID:", chatId);
+    console.log("Chat.js ,User in chat:", user);
+    console.log("Chat.js ,Current user in chat:", currentUser);
 
     const fetchUserById = async (userId) => {
     try {
@@ -34,38 +41,44 @@ const ChatList = () => {
     }
 };
 
-        useEffect(() => {
-        if (!chatId) return;
-
-        const unSub = onSnapshot(doc(db, "chats", chatId), async (res) => {
-            if (res.exists()) {
-                const chatData = res.data();
-                setChat(chatData);
-                setMessages(chatData.messages || []);
-
-                // Fetch the recipient's username if messages exist
-                if (chatData.messages.length > 0) {
-                    const recipientId = chatData.messages[0].sender; // Adjust this logic as necessary
-                    const username = await fetchUserById(recipientId);
-                    setRecipient(username);
-                    console.log(Recipient);
-                }
-            } else {
-                setChat(null);
-                setMessages([]);
-            }
-        });
-
-        return () => {
-            unSub();
-        };
-    }, [chatId]);
-
     useEffect(() => {
+
+        const fetchChatData = async () => {
+
+            setMessages([]);
+
+            const username = useChatStore.getState().user.username;
+            const avatar = useChatStore.getState().user.avatar;
+
+            console.log("Entering fetch chat data")
+            console.log(username);
+            console.log(avatar);
+            setRecipient({ username, avatar });
+
+            if (chatId) {
+                const chatDocRef = doc(db, "chats", chatId);
+                const chatDocSnap = await getDoc(chatDocRef);
+
+                console.log("Chat document snapshot:", chatDocSnap);
+                if (chatDocSnap.exists()) {
+                    const chatData = chatDocSnap.data();
+                    console.log("Chat data:", chatData);
+                    setMessages(chatData.messages || []);
+                    setChat(chatData);
+                } else {
+                    console.warn("No such chat document!");
+                }
+            }
+
+
+
         if (chatLogsRef.current) {
             chatLogsRef.current.scrollTop = chatLogsRef.current.scrollHeight;
         }
-    }, [messages]);
+    }
+
+    fetchChatData();
+    }, [chatId]);
 
     const handleSend = async () => {
     if (message.trim() && !isSending) {
@@ -147,12 +160,11 @@ const ChatList = () => {
         <div className="chat-list">
             <div className="title">
                 <img className='logo' src={Recipient?.avatar || require('../images/user.png')} alt="User logo" />
-                <div className='name'>{chat ? Recipient.username : 'Chat'}</div>
+                <div className='name'>{Recipient.username || 'Chat'}</div>
             </div>
             <div className='chat-logs' ref={chatLogsRef}>
                 {messages.map((msg, index) => (
             <div className='message' key={index}>
-                {/* {console.log(msg)} */}
                 {msg.type === 'image' ? (
                     <div className={msg.sender === currentUser.id ? 'you' : 'recipient'}>
                         <img src={msg.text} alt="Uploaded" className="message-image" />

@@ -18,14 +18,16 @@ const UserList = () => {
     }
     return (
         <div className="User-List">
-            <div className="User">
-                <img className="icon" src={currentUser.avatar||require('../images/user.png')} alt="User icon" />
-                <div className="name">{currentUser.username}</div>
-                <div className='logout'>
-                    <button className='logout' onClick={onLogOut}>Exit</button>
+            <div className='top-half'>
+                <div className="User">
+                    <img className="icon" src={currentUser.avatar||require('../images/user.png')} alt="User icon" />
+                    <div className="name">{currentUser.username}</div>
                 </div>
-            </div>
             <Chatlist />
+            </div>
+            <div className='logout'>
+                    <button className='logout' onClick={onLogOut}>Exit</button>
+            </div>
         </div>
     );
 }

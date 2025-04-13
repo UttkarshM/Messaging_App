@@ -1,8 +1,8 @@
 import { arrayUnion, query, where, getDocs, collection, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import './addUser.css';
 import { useState } from 'react';
-import { db } from '../../lib/firebase';
-import useUserStore from '../../lib/userStore';
+import { db } from '../lib/firebase';
+import useUserStore from '../lib/userStore';
 
 const AddUser = () => {
     const [user, setUser] = useState(null);
@@ -111,7 +111,7 @@ const handleAdd = async () => {
             {user && (
                 <div className='user'>
                     <div className='detail'>
-                        <img src={user.avatar || require('../../images/user.png')} alt="" />
+                        <img src={user.avatar || require('../images/user.png')} alt="" />
                         <span>{user.username}</span>
                         <button onClick={handleAdd}>Add</button>
                     </div>
