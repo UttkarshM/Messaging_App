@@ -119,7 +119,7 @@ const AuthForm = () => {
             <label className="upload-image" htmlFor="file">
               <img
                 className="avatar-logo"
-                src={avatar.url || "/placeholder.svg?height=100&width=100"}
+                src={avatar.url || require("../images/user.png")}
                 alt="Avatar"
               />
               Avatar

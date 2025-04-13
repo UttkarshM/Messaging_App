@@ -4,7 +4,8 @@ import { db } from '../lib/firebase';
 import useChatStore from '../lib/chatStore';
 import './Chat.css';
 import useUserStore from '../lib/userStore';
-import { use } from 'react';
+import upload from '../lib/upload';
+import { Upload } from 'lucide-react';
 
 const ChatList = () => {
     const [chat, setChat] = useState(null);
@@ -14,77 +15,65 @@ const ChatList = () => {
     const chatLogsRef = useRef(null);
     const { chatId } = useChatStore();
     const { user } = useChatStore();
+    const fileInputRef = useRef(null);
+
 
 
     const [ Recipient, setRecipient ] = useState({ username: 'Loading...', avatar: null });
     const { currentUser } = useUserStore();
 
-    console.log("Chat.js ,Chat ID:", chatId);
-    console.log("Chat.js ,User in chat:", user);
-    console.log("Chat.js ,Current user in chat:", currentUser);
+    // console.log("Chat.js ,Chat ID:", chatId);
+    // console.log("Chat.js ,User in chat:", user);
+    // console.log("Chat.js ,Current user in chat:", currentUser);
 
-    const fetchUserById = async (userId) => {
-    try {
-        const userDocRef = doc(db, "users", userId);
-        const userDocSnap = await getDoc(userDocRef);
 
-        if (userDocSnap.exists()) {
-            const { username, avatar } = userDocSnap.data();
-            return { username, avatar };
-        } else {
-            console.warn("No such user found!");
-            return { username: null, avatar: null };
-        }
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        return { username: null, avatar: null };
-    }
-};
 
-    useEffect(() => {
+useEffect(() => {
+    if (!chatId) return;
 
-        const fetchChatData = async () => {
+    setMessages([]);
 
-            setMessages([]);
+    const username = useChatStore.getState().user.username;
+    const avatar = useChatStore.getState().user.avatar;
 
-            const username = useChatStore.getState().user.username;
-            const avatar = useChatStore.getState().user.avatar;
+    // console.log("Setting recipient...");
+    // console.log(username, avatar);
+    setRecipient({ username, avatar });
 
-            console.log("Entering fetch chat data")
-            console.log(username);
-            console.log(avatar);
-            setRecipient({ username, avatar });
+    const chatDocRef = doc(db, "chats", chatId);
 
-            if (chatId) {
-                const chatDocRef = doc(db, "chats", chatId);
-                const chatDocSnap = await getDoc(chatDocRef);
+    // console.log("Setting up Firestore listener for chat:", chatId);
 
-                console.log("Chat document snapshot:", chatDocSnap);
-                if (chatDocSnap.exists()) {
-                    const chatData = chatDocSnap.data();
-                    console.log("Chat data:", chatData);
-                    setMessages(chatData.messages || []);
-                    setChat(chatData);
-                } else {
-                    console.warn("No such chat document!");
-                }
+    const unsubscribe = onSnapshot(chatDocRef, (chatDocSnap) => {
+        // console.log("Firestore snapshot received:", chatDocSnap);
+
+        if (chatDocSnap.exists()) {
+            const chatData = chatDocSnap.data();
+            console.log("Updated chat data:", chatData);
+            setMessages(chatData.messages || []);
+            setChat(chatData);
+
+            if (chatLogsRef.current) {
+                chatLogsRef.current.scrollTop = chatLogsRef.current.scrollHeight;
             }
-
-
-
-        if (chatLogsRef.current) {
-            chatLogsRef.current.scrollTop = chatLogsRef.current.scrollHeight;
+        } else {
+            console.warn("No such chat document!");
         }
-    }
+    });
 
-    fetchChatData();
-    }, [chatId]);
+    return () => {
+        // console.log("Cleaning up Firestore listener");
+        unsubscribe(); // Stop listening on unmount or chatId change
+    };
+}, [chatId]);
+
 
     const handleSend = async () => {
     if (message.trim() && !isSending) {
         setIsSending(true);
 
         const newMessage = {
+            type:"text",
             text: message,
             sender: currentUser.id,
             timestamp: new Date(),
@@ -116,6 +105,19 @@ const ChatList = () => {
     }
 };
 
+    useEffect(() => {
+        if (chatLogsRef.current) {
+            chatLogsRef.current.scrollTop = chatLogsRef.current.scrollHeight;
+        }
+    }
+    , [messages]);
+
+    const handleClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click(); // programmatically trigger the file input
+        }
+    };
+
     
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
@@ -124,36 +126,41 @@ const ChatList = () => {
         }
     };
 
-    const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const newMessage = {
-                    text: reader.result,
-                    sender: currentUser.uid,
-                    type: 'image',
-                    timestamp: new Date(),
-                };
+    const handleImageUpload = async (event) => {
+        console.log("Image upload triggered");
+    
+        const file = event.target.files?.[0];
+        if (!file) return;
 
-                try {
-                    const chatDocRef = doc(db, "chats", chatId);
-                    const currentChatDoc = await getDoc(chatDocRef);
-                    const existingMessages = currentChatDoc.data().messages || [];
+        const imgUrl = await upload(file);
+        const newMessage = {
+            type: "image",
+            text: imgUrl,
+            sender: currentUser.id,
+            timestamp: new Date(),
+        };
+        console.log("New message object:", newMessage.text);
+        setIsSending(true);
+        try {
+            const chatDocRef = doc(db, "chats", chatId);
+            const currentChatDoc = await getDoc(chatDocRef);
+            const existingMessages = currentChatDoc.data().messages || [];
 
-                    await updateDoc(chatDocRef, {
-                        messages: [...existingMessages, newMessage],
-                    });
+            await updateDoc(chatDocRef, {
+                messages: [...existingMessages, newMessage],
+            });
 
-                    const updatedChatDoc = await getDoc(chatDocRef);
-                    setMessages(updatedChatDoc.data().messages || []);
-                } catch (error) {
-                    console.error("Error uploading image:", error);
-                }
-            };
-            reader.readAsDataURL(file);
+            const updatedChatDoc = await getDoc(chatDocRef);
+            setMessages(updatedChatDoc.data().messages || []);
+            setMessage('');
+        } catch (error) {
+            console.error("Error sending image:", error);
+        } finally {
+            setIsSending(false);
         }
     };
+    
+    
 
     
     return (
@@ -167,10 +174,10 @@ const ChatList = () => {
             <div className='message' key={index}>
                 {msg.type === 'image' ? (
                     <div className={msg.sender === currentUser.id ? 'you' : 'recipient'}>
-                        <img src={msg.text} alt="Uploaded" className="message-image" />
+                        <img className='image' src={msg.text} alt="User upload" />
                     </div>
                 ) : (
-                    <div className={msg.sender === currentUser.id ? 'you' : 'recipient'}>
+                    <div className={msg.sender === currentUser.id ? 'you-text' : 'recipient-text'}>
                         {msg.text}
                     </div>
                 )}
@@ -192,12 +199,13 @@ const ChatList = () => {
                     type="file" 
                     accept="image/*"
                     className="image-input" 
+                    ref={fileInputRef}
                     onChange={handleImageUpload} 
                     style={{ display: 'none' }} 
                     id="image-upload" 
                 />
-                <div className='upload-button-container'>
-                    <div htmlFor="image-upload" className="upload-button">📷</div>
+                <div className='upload-button-container' onClick={handleClick}>
+                    <Upload className='upload-button' />
                 </div>
                 <div className="send-button">
                     <button
